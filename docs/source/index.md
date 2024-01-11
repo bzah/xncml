@@ -21,6 +21,7 @@ pip install xncml
 :maxdepth: 2
 
 tutorial
+variable
 ```
 
 ## Meta

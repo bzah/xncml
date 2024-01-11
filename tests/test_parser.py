@@ -310,8 +310,8 @@ def test_unsigned_type():
 
 def test_empty_scalar__no_values_tag():
     """
-    Scalar without values loose their type because we can't create a typed numpy
-    scalar which is empty
+    A scalar without a <values> tag will not be typed, even if the 'type' attribute is 
+    filled, because numpy can't create an empty typed scalar.
     """
     ds = xncml.open_ncml(data / 'testEmptyScalar.xml')
     assert ds['empty_scalar_var'].dtype == np.dtype('O')
@@ -319,15 +319,15 @@ def test_empty_scalar__no_values_tag():
 
 
 def test_empty_scalar__with_empty_values_tag():
-    """A scalar variable with an empty <values> tag is invalid."""
-    with pytest.raises(ValueError, match='No values found for variable .*'):
-        xncml.open_ncml(data / 'testEmptyScalar_withValuesTag.xml')
+    """A scalar with an empty in its <values> tag is invalid."""
+    with pytest.raises(ValueError, match="No values found for variable .*"):
+        xncml.open_ncml(data/ "testEmptyScalar_withValuesTag.xml")
 
 
 def test_multiple_values_for_scalar():
-    """Scalar with an multiple values in <values> tag is invalid."""
-    with pytest.raises(ValueError, match='The expected size for variable .* was 1, .*'):
-        xncml.open_ncml(data / 'testEmptyScalar_withMultipleValues.xml')
+    """a scalar with multiple values in its <values> tag is invalid."""
+    with pytest.raises(ValueError, match="The expected size for variable .* was 1, .*"):
+        xncml.open_ncml(data/ "testEmptyScalar_withMultipleValues.xml")
 
 
 def test_read_enum():
@@ -341,6 +341,38 @@ def test_empty_attr():
     """A empty attribute is valid."""
     ds = xncml.open_ncml(data / 'testEmptyAttr.xml')
     assert ds.attrs['comment'] == ''
+
+
+
+def test_read_group__read_only_root_group():
+    """By default, only read root group."""
+    ds = xncml.open_ncml(data / "testRootGroup.xml")
+    assert ds.toto is not None
+    assert ds.get("group_var") is None
+    assert ds.get("other_group_var") is None
+
+
+def test_read_group__read_sub_group():
+    """Read specified sub group and its parents."""
+    ds = xncml.open_ncml(data / "testRootGroup.xml", group="a_sub_group")
+    assert ds.toto is not None
+    assert ds.get("group_var") is not None
+    ds.group_var.attrs["group_path"] = "/a_sub_group"
+    assert ds.get("other_group_var") is None
+
+
+def test_read_group__error_read_sub_group():
+    with pytest.raise(KeyError, match="Could not find group named `noop` in the ncml."):
+        ds = xncml.open_ncml(data / "testRootGroup.xml", group="noop")
+
+def test_flatten_groups():
+    """Read every group and flatten everything in a single dataset/group."""
+    ds = xncml.open_ncml(data/ "testRootGroup.xml", group="*")
+    assert ds.toto is not None
+    assert ds.get("group_var") is not None
+    ds.group_var.attrs["group_path"] = "/a_sub_group"
+    assert ds.get("other_group_var") is not None
+    ds.other_group_var.attrs["group_path"] = "/another_sub_group"
 
 
 # --- #

@@ -3,6 +3,7 @@
 ![Read the Docs](https://img.shields.io/readthedocs/xncml)
 ![PyPI](https://img.shields.io/pypi/v/xncml)
 
+|coverage|
 
 Tools for opening and manipulating NcML (NetCDF Markup Language) files with/for xarray.
 
@@ -30,3 +31,13 @@ pip install xncml
 ```
 
 [documentation]: https://xncml.readthedocs.io
+
+..
+  Pytest Coverage Comment:Begin
+
+.. |coverage| image:: https://img.shields.io/badge/Coverage-86%25-green.svg
+        :target: https://github.com/cerfacs-globc/icclim/blob/master/README.rst#code-coverage
+        :alt: Code coverage
+
+..
+  Pytest Coverage Comment:End
